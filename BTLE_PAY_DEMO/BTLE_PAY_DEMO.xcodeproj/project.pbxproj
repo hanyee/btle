@@ -20,7 +20,8 @@
 		77519FE417F32CB200C17A92 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 77519FE217F32CB200C17A92 /* InfoPlist.strings */; };
 		77519FE617F32CB200C17A92 /* BTLE_PAY_DEMOTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 77519FE517F32CB200C17A92 /* BTLE_PAY_DEMOTests.m */; };
 		77519FF017F32D0600C17A92 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77519FEF17F32D0600C17A92 /* CoreBluetooth.framework */; };
-		77519FF317F32E0100C17A92 /* UI in Resources */ = {isa = PBXBuildFile; fileRef = 77519FF217F32E0100C17A92 /* UI */; };
+		77519FF717F3307B00C17A92 /* APBTLEAppDelegate.h in Sources */ = {isa = PBXBuildFile; fileRef = 77519FCF17F32CB200C17A92 /* APBTLEAppDelegate.h */; };
+		7751A00217F3319500C17A92 /* ModeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7751A00117F3319500C17A92 /* ModeViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,7 +52,8 @@
 		77519FE317F32CB200C17A92 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		77519FE517F32CB200C17A92 /* BTLE_PAY_DEMOTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BTLE_PAY_DEMOTests.m; sourceTree = "<group>"; };
 		77519FEF17F32D0600C17A92 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
-		77519FF217F32E0100C17A92 /* UI */ = {isa = PBXFileReference; lastKnownFileType = folder; path = UI; sourceTree = "<group>"; };
+		7751A00017F3319500C17A92 /* ModeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModeViewController.h; sourceTree = "<group>"; };
+		7751A00117F3319500C17A92 /* ModeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ModeViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,7 +115,7 @@
 		77519FC617F32CB200C17A92 /* BTLE_PAY_DEMO */ = {
 			isa = PBXGroup;
 			children = (
-				77519FF217F32E0100C17A92 /* UI */,
+				77519FFF17F3319500C17A92 /* UI */,
 				77519FCF17F32CB200C17A92 /* APBTLEAppDelegate.h */,
 				77519FD017F32CB200C17A92 /* APBTLEAppDelegate.m */,
 				77519FD217F32CB200C17A92 /* Images.xcassets */,
@@ -149,6 +151,15 @@
 				77519FE217F32CB200C17A92 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		77519FFF17F3319500C17A92 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				7751A00017F3319500C17A92 /* ModeViewController.h */,
+				7751A00117F3319500C17A92 /* ModeViewController.m */,
+			);
+			path = UI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -228,7 +239,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				77519FCB17F32CB200C17A92 /* InfoPlist.strings in Resources */,
-				77519FF317F32E0100C17A92 /* UI in Resources */,
 				77519FD317F32CB200C17A92 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -248,8 +258,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				77519FF717F3307B00C17A92 /* APBTLEAppDelegate.h in Sources */,
 				77519FD117F32CB200C17A92 /* APBTLEAppDelegate.m in Sources */,
 				77519FCD17F32CB200C17A92 /* main.m in Sources */,
+				7751A00217F3319500C17A92 /* ModeViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,6 +7,7 @@
 //
 
 #import "APBTLEAppDelegate.h"
+#import "UI/ModeViewController.h"
 
 @implementation APBTLEAppDelegate
 
@@ -16,6 +17,7 @@
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
+    self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:[[ModeViewController alloc] init]];
     return YES;
 }
 
