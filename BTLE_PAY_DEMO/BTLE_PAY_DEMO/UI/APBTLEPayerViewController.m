@@ -5,11 +5,15 @@
 //  Created by Michael Hanyee on 13-9-26.
 //  Copyright (c) 2013年 Michael Hanyee. All rights reserved.
 //
+#import <CoreBluetooth/CoreBluetooth.h>
 
 #import "APBTLEPayerViewController.h"
 #import "APBTLEPaymentCompleteViewController.h"
+#import "APBTLECoreTunnel.h"
 
-@interface APBTLEPayerViewController ()
+@interface APBTLEPayerViewController () <APBTLECoreTunnelDelegate>
+
+@property (strong, nonatomic) APBTLECoreTunnel  *tunnel;
 
 @end
 
@@ -21,6 +25,8 @@
     if (self) {
         // Custom initialization
         self.title = @"Pay";
+        self.tunnel = [[APBTLECoreTunnel alloc] init];
+        self.tunnel.delegate = self;
     }
     return self;
 }
@@ -43,17 +49,48 @@
     
     [self.view addSubview:payBtn];
     [self.view addSubview:directPayBtn];
+    
 }
 
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    // Don't keep it going while we're not showing.
+    [self.tunnel stopAdvertising];
+    
+    [super viewWillDisappear:animated];
+}
 
 - (void) pay {
 
 }
 
 - (void) directPay{
-    [self.navigationController pushViewController:[[APBTLEPaymentCompleteViewController alloc] init] animated:YES];
+    [self.tunnel setDataToSend:[@"hahah,,111@aaa!" dataUsingEncoding:NSUTF8StringEncoding]];
+    [self.tunnel createPeripheralManagerWithUUIDStrings:@[DEFAULT_TRANSFER_SERVICE_UUID]];
+    
+//    [self.tunnel updatePeripheralServiceWithUUID:nil];
+    // add service`
+    
+//    [self.navigationController pushViewController:[[APBTLEPaymentCompleteViewController alloc] init] animated:YES];
 }
 
+- (void)peripheralManager:(CBPeripheralManager *)peripheral central:(CBCentral *)central didSubscribeToCharacteristic:(CBCharacteristic *)characteristic;{
+
+    [self.tunnel sendData];
+    
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(timertodo) userInfo:nil repeats:YES];
+    });
+}
+
+
+- (void) timertodo{
+    NSLog(@"timer excuted!!!! ");
+    
+    [self.tunnel setDataToSend:[@"34567898765jkskldj" dataUsingEncoding:NSUTF8StringEncoding]];
+    [self.tunnel sendData];
+}
 
 - (void)didReceiveMemoryWarning
 {

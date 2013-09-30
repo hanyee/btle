@@ -11,6 +11,7 @@
 		7742474B17F3DF0900EFA6B9 /* APBTLEPayerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7742474A17F3DF0900EFA6B9 /* APBTLEPayerViewController.m */; };
 		7742474E17F4081000EFA6B9 /* APBTLECashierCompleteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7742474D17F4081000EFA6B9 /* APBTLECashierCompleteViewController.m */; };
 		7742475117F40E3100EFA6B9 /* APBTLEPaymentCompleteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7742475017F40E3100EFA6B9 /* APBTLEPaymentCompleteViewController.m */; };
+		7742475517F4249300EFA6B9 /* APBTLECoreTunnel.m in Sources */ = {isa = PBXBuildFile; fileRef = 7742475417F4249300EFA6B9 /* APBTLECoreTunnel.m */; };
 		77519FC117F32CB200C17A92 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77519FC017F32CB200C17A92 /* Foundation.framework */; };
 		77519FC317F32CB200C17A92 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77519FC217F32CB200C17A92 /* CoreGraphics.framework */; };
 		77519FC517F32CB200C17A92 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77519FC417F32CB200C17A92 /* UIKit.framework */; };
@@ -47,6 +48,8 @@
 		7742474D17F4081000EFA6B9 /* APBTLECashierCompleteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APBTLECashierCompleteViewController.m; sourceTree = "<group>"; };
 		7742474F17F40E3100EFA6B9 /* APBTLEPaymentCompleteViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APBTLEPaymentCompleteViewController.h; sourceTree = "<group>"; };
 		7742475017F40E3100EFA6B9 /* APBTLEPaymentCompleteViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APBTLEPaymentCompleteViewController.m; sourceTree = "<group>"; };
+		7742475317F4249300EFA6B9 /* APBTLECoreTunnel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APBTLECoreTunnel.h; sourceTree = "<group>"; };
+		7742475417F4249300EFA6B9 /* APBTLECoreTunnel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APBTLECoreTunnel.m; sourceTree = "<group>"; };
 		77519FBD17F32CB200C17A92 /* BTLE_PAY_DEMO.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BTLE_PAY_DEMO.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		77519FC017F32CB200C17A92 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		77519FC217F32CB200C17A92 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -93,6 +96,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7742475217F4230E00EFA6B9 /* BTLECore */ = {
+			isa = PBXGroup;
+			children = (
+				7742475317F4249300EFA6B9 /* APBTLECoreTunnel.h */,
+				7742475417F4249300EFA6B9 /* APBTLECoreTunnel.m */,
+			);
+			path = BTLECore;
+			sourceTree = "<group>";
+		};
 		77519FB417F32CB200C17A92 = {
 			isa = PBXGroup;
 			children = (
@@ -127,6 +139,7 @@
 		77519FC617F32CB200C17A92 /* BTLE_PAY_DEMO */ = {
 			isa = PBXGroup;
 			children = (
+				7742475217F4230E00EFA6B9 /* BTLECore */,
 				77519FFF17F3319500C17A92 /* UI */,
 				77519FCF17F32CB200C17A92 /* APBTLEAppDelegate.h */,
 				77519FD017F32CB200C17A92 /* APBTLEAppDelegate.m */,
@@ -286,6 +299,7 @@
 				7742475117F40E3100EFA6B9 /* APBTLEPaymentCompleteViewController.m in Sources */,
 				7742474817F3DEEF00EFA6B9 /* APBTLECashierViewController.m in Sources */,
 				7751A00217F3319500C17A92 /* ModeViewController.m in Sources */,
+				7742475517F4249300EFA6B9 /* APBTLECoreTunnel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,11 +416,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "BTLE_PAY_DEMO/BTLE_PAY_DEMO-Prefix.pch";
 				INFOPLIST_FILE = "BTLE_PAY_DEMO/BTLE_PAY_DEMO-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "435DC9F2-958E-432D-B312-A52E23DEFD30";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -416,11 +433,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "BTLE_PAY_DEMO/BTLE_PAY_DEMO-Prefix.pch";
 				INFOPLIST_FILE = "BTLE_PAY_DEMO/BTLE_PAY_DEMO-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "435DC9F2-958E-432D-B312-A52E23DEFD30";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

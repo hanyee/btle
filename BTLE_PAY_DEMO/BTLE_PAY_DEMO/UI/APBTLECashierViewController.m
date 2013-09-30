@@ -8,11 +8,13 @@
 
 #import "APBTLECashierViewController.h"
 #import "APBTLECashierCompleteViewController.h"
+#import "APBTLECoreTunnel.h"
 
-@interface APBTLECashierViewController ()
+@interface APBTLECashierViewController () <APBTLECoreTunnelDelegate>
 
 @property CGFloat mt;
 @property (strong, nonatomic) UIButton          *dealBtn;
+@property (strong, nonatomic) APBTLECoreTunnel  *tunnel;
 
 @end
 
@@ -23,6 +25,8 @@
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
+        self.tunnel = [[APBTLECoreTunnel alloc] init];
+        
         self.title = @"Cashier";
         if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
             self.mt = 10.f;
@@ -32,9 +36,20 @@
     }
     return self;
 }
+
 - (void) viewWillAppear:(BOOL)animated{
     [self.dealBtn setTitle:@"收 款" forState:UIControlStateNormal];
 }
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    // Don't keep it going while we're not showing.
+    [self.tunnel stopScan];
+    [self.tunnel cleanup];
+    
+    [super viewWillDisappear:animated];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -61,7 +76,11 @@
 
 - (void) dealPayment{
     [self.dealBtn setTitle:@"等待付款 ....." forState:UIControlStateNormal];
-    [self.navigationController pushViewController:[[APBTLECashierCompleteViewController alloc] init] animated:YES];
+//    [self.tunnel createCentralManager];
+//    [self.tunnel scanWithUUID:@[DEFAULT_TRANSFER_SERVICE_UUID]];
+    [self.tunnel createCentralManagerWithUUIDStrings:@[DEFAULT_TRANSFER_SERVICE_UUID]];
+    
+//    [self.navigationController pushViewController:[[APBTLECashierCompleteViewController alloc] init] animated:YES];
 }
 
 - (void)didReceiveMemoryWarning
