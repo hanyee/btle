@@ -66,29 +66,31 @@
 }
 
 - (void) directPay{
-    [self.tunnel setDataToSend:[@"hahah,,111@aaa!" dataUsingEncoding:NSUTF8StringEncoding]];
+    
     [self.tunnel createPeripheralManagerWithUUIDStrings:@[DEFAULT_TRANSFER_SERVICE_UUID]];
-    
 //    [self.tunnel updatePeripheralServiceWithUUID:nil];
-    // add service`
-    
 //    [self.navigationController pushViewController:[[APBTLEPaymentCompleteViewController alloc] init] animated:YES];
 }
 
-- (void)peripheralManager:(CBPeripheralManager *)peripheral central:(CBCentral *)central didSubscribeToCharacteristic:(CBCharacteristic *)characteristic;{
 
+- (void) peripheralManagerPoweredOn{
+    [self.tunnel startAdvertising];
+}
+
+- (void) isReadyToSendData{
+    [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[@"hahah,,111@aaa!" dataUsingEncoding:NSUTF8StringEncoding]]];
     [self.tunnel sendData];
     
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(timertodo) userInfo:nil repeats:YES];
-    });
+//    dispatch_sync(dispatch_get_main_queue(), ^{
+//        [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(timertodo) userInfo:nil repeats:YES];
+//    });
 }
 
 
 - (void) timertodo{
     NSLog(@"timer excuted!!!! ");
     
-    [self.tunnel setDataToSend:[@"34567898765jkskldj" dataUsingEncoding:NSUTF8StringEncoding]];
+    [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[@"34567898765jkskldj" dataUsingEncoding:NSUTF8StringEncoding]]];
     [self.tunnel sendData];
 }
 

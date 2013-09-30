@@ -6,16 +6,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "No"
+            shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "BTLE_PAY_DEMO/BTLECore/APBTLECoreTunnel.m"
-            timestampString = "402135049.004085"
+            filePath = "BTLE_PAY_DEMO/UI/APBTLECashierViewController.m"
+            timestampString = "402230375.231858"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "487"
-            endingLineNumber = "487"
-            landmarkName = "-peripheralManager:central:didSubscribeToCharacteristic:"
+            startingLineNumber = "103"
+            endingLineNumber = "103"
+            landmarkName = "-dataReceived:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

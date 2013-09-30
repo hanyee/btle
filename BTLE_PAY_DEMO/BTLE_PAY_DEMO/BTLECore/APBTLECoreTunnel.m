@@ -10,8 +10,6 @@
 #import "APBTLECoreTunnel.h"
 
 @interface APBTLECoreTunnel () <CBCentralManagerDelegate, CBPeripheralManagerDelegate, CBPeripheralDelegate>{
-//    id <APBTLECoreTunnelDelegate> delegate;
-
     dispatch_queue_t centralManagerQueue;
     dispatch_queue_t peripheralManagerQueue;
 }
@@ -19,28 +17,25 @@
 
 
 @property (strong, nonatomic) CBCentralManager      *centralManager;
-//@property (strong, nonatomic) CBPeripheral          *discoveredPeripheral;
+@property (strong, nonatomic) CBPeripheral          *discoveredPeripheral;
 @property (strong, nonatomic) CBPeripheral          *connectedPeripheral;
 @property (strong, nonatomic) CBUUID                *defaultCharacteristicUUID;
 @property (strong, nonatomic) NSArray               *serviceUUIDs;
 @property (strong, nonatomic) NSArray               *serviceUUIDStrings;
 @property (strong, nonatomic) NSMutableData         *receivedData;
 @property (strong, nonatomic) NSString              *receivedDataString;
-@property BOOL                                      transferCompleted;
+//@property BOOL                                      transferCompleted;
 
 
 
 @property (strong, nonatomic) CBPeripheralManager       *peripheralManager;
-//@property (strong, nonatomic) NSData                    *dataToSend;
 @property (nonatomic, readwrite) NSInteger              sendDataIndex;
-@property (strong, nonatomic) NSString                  *deviceUID;
 @property (strong, nonatomic) NSArray                   *advertisingServiceUUIDs;
 @property (strong, nonatomic) NSArray                   *advertisingServiceUUIDStrings;
-
 @property (strong, nonatomic) CBMutableCharacteristic   *transferCharacteristic;
 
-@property (strong, nonatomic) NSString                  *firstSecretUUID;
 
+@property (strong, nonatomic) NSString                  *deviceUID;
 
 @end
 
@@ -49,9 +44,13 @@
 @implementation APBTLECoreTunnel
 
 @synthesize delegate;
+@synthesize discoveredPeripheral;
+@synthesize peripheralManager;
+@synthesize centralManager;
 @synthesize dataToSend = _dataToSend;
 
-- (void) setDataToSend:(NSData *)dataToSend{
+- (void) setDataToSend:(NSMutableData *)dataToSend{
+//    _dataToSend = [[NSMutableData alloc] initWithData:dataToSend];
     _dataToSend = dataToSend;
     self.sendDataIndex = 0;
 }
@@ -71,6 +70,7 @@
     
     if (self) {
         centralManagerQueue = nil;
+//        peripheralManagerQueue = nil;
         peripheralManagerQueue = dispatch_queue_create("com.alipay.btle.pm.queue", DISPATCH_QUEUE_SERIAL);
         self.deviceUID = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
         self.defaultCharacteristicUUID = [CBUUID UUIDWithString:DEFAULT_TRANSFER_CHARACTERISTIC_UUID];
@@ -85,6 +85,7 @@
 #pragma mark - central mode
 - (void) createCentralManager {
     self.receivedData = [[NSMutableData alloc] init];
+//    [self.receivedData setLength:0];
     self.serviceUUIDs = nil;
     self.serviceUUIDStrings = nil;
     
@@ -93,11 +94,14 @@
 }
 
 - (void) createCentralManagerWithUUIDStrings:(NSArray *) uuidStrings{
-    [self createCentralManager];
+    if (!self.centralManager) {
+        [self createCentralManager];
+    }
     self.serviceUUIDStrings = uuidStrings;
+    self.serviceUUIDs = [self stringToUUID:uuidStrings];
 }
 
-- (void) scanWithUUID:(NSArray *)uuidStrings{
+- (void) scanWithUUID:(NSArray *)uuidStrings {
     
     if (self.centralManager.state != CBCentralManagerStatePoweredOn) {
         return ;
@@ -117,6 +121,18 @@
     NSLog(@"central manager started scanning with uuids: %@", uuidStrings);
 }
 
+- (void) scan {
+    
+    if (self.centralManager.state != CBCentralManagerStatePoweredOn) {
+        return ;
+    }
+    
+    [self.centralManager scanForPeripheralsWithServices:self.serviceUUIDs
+                                                options:@{ CBCentralManagerScanOptionAllowDuplicatesKey : @YES }];
+    
+    NSLog(@"central manager started scanning with uuids: %@", self.serviceUUIDStrings);
+}
+
 - (void) stopScan {
     if (self.centralManager) {
         [self.centralManager stopScan];
@@ -128,17 +144,16 @@
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central
 {
     NSLog(@"centralManagerDidUpdateState : %d", central.state);
-    NSLog(@"param central : %@", central);
-    NSLog(@"self central : %@", self.centralManager);
     
     if (central.state != CBCentralManagerStatePoweredOn) {
         // In a real app, you'd deal with all the states correctly
         return;
     }
     
-    if (self.serviceUUIDStrings) {
-        [self scanWithUUID:self.serviceUUIDStrings];
-    }
+    [self.delegate centralManagerPoweredOn];
+//    if (self.serviceUUIDStrings) {
+//        [self scanWithUUID:self.serviceUUIDStrings];
+//    }
 //    [self scanWithUUID:nil];
 }
 
@@ -156,9 +171,17 @@
     
     // end TODO:
     
-    // connect the closest peripheral device
-    NSLog(@"Connecting to peripheral %@", peripheral);
-    [self.centralManager connectPeripheral:peripheral options:nil];
+    
+    if (self.discoveredPeripheral != peripheral) {
+        
+        // Save a local copy of the peripheral, so CoreBluetooth doesn't get rid of it
+        self.discoveredPeripheral = peripheral;
+        
+        // And connect
+        // connect the closest peripheral device
+        NSLog(@"Connecting to peripheral %@", peripheral);
+        [self.centralManager connectPeripheral:peripheral options:nil];
+    }
 }
 
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
@@ -178,21 +201,22 @@
     
     self.connectedPeripheral = peripheral;
     
+    // release the discoveredPeripheral
+    self.discoveredPeripheral = nil;
+    
     // Clear the data that we may already have
 //    [self.receivedData setLength:0];
     
     // Make sure we get the discovery callbacks
-//    self.connectedPeripheral.delegate = self;
-    peripheral.delegate = self;
+    self.connectedPeripheral.delegate = self;
+//    peripheral.delegate = self;
     
     // Search only for services that match our UUID
-//    if (self.serviceUUIDs.count > 0) {
-//        [peripheral discoverServices:self.serviceUUIDs];
-//    }else{
-//        [peripheral discoverServices:nil];
-//    }
-    
-    [peripheral discoverServices:nil];
+    if (self.serviceUUIDs.count > 0) {
+        [peripheral discoverServices:self.serviceUUIDs];
+    }else{
+        [peripheral discoverServices:nil];
+    }
 }
 
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error
@@ -209,7 +233,6 @@
     // Loop through the newly filled peripheral.services array, just in case there's more than one.
     for (CBService *service in peripheral.services) {
         [peripheral discoverCharacteristics:@[self.defaultCharacteristicUUID] forService:service];
-//        [peripheral discoverCharacteristics:nil forService:service];
     }
 }
 
@@ -227,7 +250,7 @@
     }
     
     // Clear the data that we may already have
-    [self.receivedData setLength:0];
+//    [self.receivedData setLength:0];
     
     // Again, we loop through the array, just in case.
     for (CBCharacteristic *characteristic in service.characteristics) {
@@ -261,6 +284,7 @@
         self.receivedDataString = [[NSString alloc] initWithData:self.receivedData encoding:NSUTF8StringEncoding];
         NSLog(@"final received data is receivedDataString : %@", self.receivedDataString);
         
+        [self.delegate dataReceived:self.receivedData];
 
         // Clear the data that we may already have
         [self.receivedData setLength:0];
@@ -316,8 +340,8 @@
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error
 {
     NSLog(@"Peripheral Disconnected");
-//    [self cleanup];
-//    self.connectedPeripheral = nil;
+
+    [self disConnectPeripheral];
 }
 
 - (void) disConnectPeripheral:(CBPeripheral *)peripheral{
@@ -334,6 +358,10 @@
     
     // disconnect from the peripehral
     [self.centralManager cancelPeripheralConnection:peripheral];
+}
+- (void) disConnectPeripheral {
+    [self cleanup];
+    self.connectedPeripheral = nil;
 }
 
 - (void)cleanup
@@ -363,6 +391,16 @@
     [self.centralManager cancelPeripheralConnection:self.connectedPeripheral];
 }
 
+- (void) destroyCentralManager {
+    [self stopScan];
+    self.serviceUUIDStrings = nil;
+    self.serviceUUIDs = nil;
+    self.discoveredPeripheral = nil;
+    self.connectedPeripheral = nil;
+    [self.receivedData setLength:0];
+    self.receivedDataString = nil;
+    self.centralManager = nil;
+}
 
 
 
@@ -419,10 +457,28 @@
         clock_t s_pairTime =  clock();
         NSLog(@"Start advertising at %lu", s_pairTime);
     }else{
-        
         NSLog(@"peripheralManager already exist!");
     }
 }
+
+- (void) startAdvertising {
+    if (self.peripheralManager.state != CBPeripheralManagerStatePoweredOn) {
+        return ;
+    }
+    
+    if (!self.peripheralManager.isAdvertising) {
+        
+        NSDictionary *advertisingData = @{CBAdvertisementDataLocalNameKey : self.deviceUID, CBAdvertisementDataServiceUUIDsKey : self.advertisingServiceUUIDs};
+        
+        [self.peripheralManager startAdvertising:advertisingData];
+        
+        clock_t s_pairTime =  clock();
+        NSLog(@"Start advertising at %lu", s_pairTime);
+    }else{
+        NSLog(@"peripheralManager already exist!");
+    }
+}
+
 
 - (void) stopAdvertising {
     if (self.peripheralManager) {
@@ -431,7 +487,7 @@
     }
 }
 
-- (void) updatePeripheralServiceWithUUID:(NSArray *) uuidStrings {
+- (void) addPeripheralServiceWithUUID:(NSArray *) uuidStrings {
 
     self.transferCharacteristic = [[CBMutableCharacteristic alloc] initWithType:self.defaultCharacteristicUUID
                                                                      properties:CBCharacteristicPropertyNotify
@@ -471,13 +527,13 @@
         return;
     }
     
-    [self updatePeripheralServiceWithUUID:nil];
+    [self addPeripheralServiceWithUUID:nil];
     
-    if (self.advertisingServiceUUIDStrings) {
-        [self startAdvertisingWithUUID:self.advertisingServiceUUIDStrings];
-    }
+    [self.delegate peripheralManagerPoweredOn];
     
-//    [self updatePeripheralServiceWithUUID:nil];
+//    if (self.advertisingServiceUUIDStrings) {
+//        [self startAdvertisingWithUUID:self.advertisingServiceUUIDStrings];
+//    }
 }
 
 /** Catch when someone subscribes to our characteristic, then start sending them data
@@ -486,28 +542,13 @@
 {
     NSLog(@"Central subscribed to characteristic");
     
-//    if (self.firstSecretUUID) {
-//        NSString *accountStr = @"btle@alipay.com";
-//        NSLog(@"sending my alipay account ..... %@", accountStr);
-//        self.dataToSend = [accountStr dataUsingEncoding:NSUTF8StringEncoding];
-//    }else{
-//        NSString *tempStr = [self.deviceUID stringByAppendingFormat:@"-%lu", clock()];
-//        NSString *tempTailStr = [tempStr substringFromIndex:37];
-//        NSString *tempHeadStr = [tempStr substringToIndex:30];
-//        
-//        self.firstSecretUUID = [tempHeadStr stringByAppendingString:tempTailStr];
-//        NSLog(@"firstSecretUUID is : %@", self.firstSecretUUID);
-//        // Get the data
-//        self.dataToSend = [@"aaaaaa" dataUsingEncoding:NSUTF8StringEncoding];
-//    }
-//    
-//    
 //    // Reset the index
 //    self.sendDataIndex = 0;
 //
 //    // Start sending
     
-    [self.delegate peripheralManager:peripheral central:central didSubscribeToCharacteristic:characteristic];
+//    [self.delegate peripheralManager:peripheral central:central didSubscribeToCharacteristic:characteristic];
+    [self.delegate isReadyToSendData];
     
 //    if (self.dataToSend.length > 0) {
 //        [self sendData];
@@ -520,11 +561,8 @@
 - (void)peripheralManager:(CBPeripheralManager *)peripheral central:(CBCentral *)central didUnsubscribeFromCharacteristic:(CBCharacteristic *)characteristic
 {
     NSLog(@"Central unsubscribed from characteristic");
-//    [self stopAdvertising];
-//    [self.peripheralManager removeAllServices];
-//    self.peripheralManager = nil;
-//    self.transferCharacteristic = nil;
-//    [self createPeripheralManager];
+
+    [self destroyPeripheralManager];
 }
 
 
@@ -548,6 +586,19 @@
     NSLog(@"services added !! : service : %@", service);
 }
 
+
+- (void) destroyPeripheralManager {
+    [self stopAdvertising];
+    [self.peripheralManager removeAllServices];
+    self.transferCharacteristic = nil;
+    self.advertisingServiceUUIDs = nil;
+    self.advertisingServiceUUIDStrings = nil;
+    self.sendDataIndex = 0;
+    [self.dataToSend setLength:0];
+    self.peripheralManager = nil;
+    
+    NSLog(@"peripheralManager destroyed!");
+}
 
 - (void) sendData
 {

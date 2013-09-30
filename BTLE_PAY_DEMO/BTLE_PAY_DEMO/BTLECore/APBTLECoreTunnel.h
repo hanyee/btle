@@ -21,31 +21,51 @@
 
 @optional
 
-- (void)peripheralManager:(CBPeripheralManager *)peripheral central:(CBCentral *)central didSubscribeToCharacteristic:(CBCharacteristic *)characteristic;
+- (void) centralManagerPoweredOn;
+- (void) dataReceived:(NSData *) data;
+
+
+
+- (void) peripheralManagerPoweredOn;
+- (void) isReadyToSendData;
+
 
 @end
 
 
+
+
+
+
+
+
+
+
 @interface APBTLECoreTunnel : NSObject
 
-@property (nonatomic) id <APBTLECoreTunnelDelegate> delegate;
+@property (nonatomic) id <APBTLECoreTunnelDelegate>            delegate;
 
-@property (strong, nonatomic) NSData                    *dataToSend;
+@property (strong, nonatomic) NSMutableData                    *dataToSend;
 
 
-- (void) createCentralManager;
+
+
+//- (void) createCentralManager;
 - (void) createCentralManagerWithUUIDStrings:(NSArray *) uuidStrings;
+- (void) scan;
 - (void) scanWithUUID:(NSArray *)uuidStrings;
 - (void) stopScan;
 - (void) cleanup;
+- (void) destroyCentralManager;
 
 
-
-- (void) createPeripheralManager;
+//- (void) createPeripheralManager;
 - (void) createPeripheralManagerWithUUIDStrings:(NSArray *) uuidStrings;
-- (void) startAdvertisingWithUUID:(NSArray *)uuidStrings;
+- (void) startAdvertising;
+- (void) startAdvertisingWithUUID:(NSArray *) uuidStrings;
 - (void) stopAdvertising;
-- (void) updatePeripheralServiceWithUUID:(NSArray *) uuidStrings;
+- (void) addPeripheralServiceWithUUID:(NSArray *) uuidStrings;
 - (void) sendData;
+- (void) destroyPeripheralManager;
 
 @end

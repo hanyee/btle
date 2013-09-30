@@ -16,6 +16,10 @@
 @property (strong, nonatomic) UIButton          *dealBtn;
 @property (strong, nonatomic) APBTLECoreTunnel  *tunnel;
 
+
+
+
+@property (strong, nonatomic) UITextView        *receivedText;
 @end
 
 @implementation APBTLECashierViewController
@@ -26,6 +30,7 @@
     if (self) {
         // Custom initialization
         self.tunnel = [[APBTLECoreTunnel alloc] init];
+        self.tunnel.delegate = self;
         
         self.title = @"Cashier";
         if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
@@ -68,10 +73,14 @@
     [self.dealBtn addTarget:self action:@selector(dealPayment) forControlEvents:UIControlEventTouchUpInside];
     
     
+    self.receivedText = [[UITextView alloc] initWithFrame:CGRectMake(10.f, priceTagLb.frame.origin.y + 40.f , 300.f, 80.f)];
+//    self.receivedText.text = @"test";
+    
     [self.view addSubview:prodIdLb];
     [self.view addSubview:prodNameLb];
     [self.view addSubview:priceTagLb];
     [self.view addSubview:self.dealBtn];
+    [self.view addSubview:self.receivedText];
 }
 
 - (void) dealPayment{
@@ -79,8 +88,20 @@
 //    [self.tunnel createCentralManager];
 //    [self.tunnel scanWithUUID:@[DEFAULT_TRANSFER_SERVICE_UUID]];
     [self.tunnel createCentralManagerWithUUIDStrings:@[DEFAULT_TRANSFER_SERVICE_UUID]];
+//    [self.tunnel createCentralManager];
     
 //    [self.navigationController pushViewController:[[APBTLECashierCompleteViewController alloc] init] animated:YES];
+}
+
+- (void) centralManagerPoweredOn{
+//    [self.tunnel scanWithUUID:@[DEFAULT_TRANSFER_SERVICE_UUID]];
+    [self.tunnel scan];
+}
+
+- (void) dataReceived:(NSData *) data{
+    if (data) {
+        self.receivedText.text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    }
 }
 
 - (void)didReceiveMemoryWarning
