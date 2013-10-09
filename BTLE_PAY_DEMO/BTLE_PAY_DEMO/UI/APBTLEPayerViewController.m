@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 Michael Hanyee. All rights reserved.
 //
 
-#define SECRETID @"19610FAE-DB05-467E-8757-72F6FAEB13D4"
+#define SECRET_ID @"19610FAE-DB05-467E-8757-72F6FAEB13D4"
 
 #import <CoreBluetooth/CoreBluetooth.h>
 
@@ -64,7 +64,12 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     // Don't keep it going while we're not showing.
-    [self.tunnel stopAdvertising];
+//    [self.tunnel stopAdvertising];
+//    [self.tunnel stopScan];
+//    [self.tunnel cleanup];
+    
+    [self.tunnel destroyPeripheralManager];
+    [self.tunnel destroyCentralManager];
     
     [super viewWillDisappear:animated];
 }
@@ -85,9 +90,6 @@
     [self.tunnel startAdvertising];
 }
 
-- (void) centralManagerPoweredOn{
-    [self.tunnel scan];
-}
 
 - (void) isReadyToSendData{
 
@@ -96,7 +98,7 @@
         
         
     }else{
-        [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[SECRETID dataUsingEncoding:NSUTF8StringEncoding]]];
+        [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[SECRET_ID dataUsingEncoding:NSUTF8StringEncoding]]];
         [self.tunnel sendData];
     }
     
@@ -108,13 +110,36 @@
 
 - (void) peripheralManagerDidDestroyed{
     
-    [self startTunnel];
-    self.tunnelBuilded = YES;
+    if (self.tunnelBuilded) {
+        self.tunnelBuilded = NO;
+    }else{
+        self.tunnelBuilded = YES;
+        [self startTunnel];
+    }
+
+}
+
+- (void) centralManagerPoweredOn{
+    [self.tunnel scan];
+}
+
+- (void) dataReceived:(NSData *) data{
+    NSString *tempReceivedString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"porduct to pay is : %@", tempReceivedString);
+    
+    // send account and finished flag
+    [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[@"myalipay@alipay.com::成功！" dataUsingEncoding:NSUTF8StringEncoding]]];
+    [self.tunnel sendData];
+    // push view with tempReceivedString
+}
+
+- (void) centralManagerDidDestroyed{
+
 }
 
 
 - (void) startTunnel{
-    [self.tunnel startTunnelWithUUID:SECRETID];
+    [self.tunnel startTunnelWithUUID:SECRET_ID];
     
 }
 

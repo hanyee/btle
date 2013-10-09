@@ -395,6 +395,7 @@
 
 - (void) destroyCentralManager {
     [self stopScan];
+    [self cleanup];
     self.serviceUUIDStrings = nil;
     self.serviceUUIDs = nil;
     self.discoveredPeripheral = nil;

@@ -6,9 +6,15 @@
 //  Copyright (c) 2013年 Michael Hanyee. All rights reserved.
 //
 
+#define PROD_ID             @"208802387236128912937"
+#define PROD_NAME           @"精选水果披萨        X 1"
+#define PROD_PRICE          @"33.00  元"
+
 #import "APBTLECashierViewController.h"
 #import "APBTLECashierCompleteViewController.h"
 #import "APBTLECoreTunnel.h"
+
+
 
 @interface APBTLECashierViewController () <APBTLECoreTunnelDelegate>
 
@@ -16,8 +22,7 @@
 @property (strong, nonatomic) UIButton          *dealBtn;
 @property (strong, nonatomic) APBTLECoreTunnel  *tunnel;
 @property (strong, nonatomic) NSString          *secretTunnelId;
-
-
+@property BOOL                                  tunnelBuilded;
 
 
 @property (strong, nonatomic) UITextView        *receivedText;
@@ -50,8 +55,12 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     // Don't keep it going while we're not showing.
-    [self.tunnel stopScan];
-    [self.tunnel cleanup];
+//    [self.tunnel stopAdvertising];
+//    [self.tunnel stopScan];
+//    [self.tunnel cleanup];
+    
+    [self.tunnel destroyPeripheralManager];
+    [self.tunnel destroyCentralManager];
     
     [super viewWillDisappear:animated];
 }
@@ -63,9 +72,9 @@
     UILabel *prodIdLb = [[UILabel alloc] initWithFrame:CGRectMake(10.f, self.mt + 10.f, 300.f, 30.f)];
     UILabel *prodNameLb = [[UILabel alloc] initWithFrame:CGRectMake(10.f, prodIdLb.frame.origin.y + prodIdLb.frame.size.height +10.f, 300.f, 30.f)];
     UILabel *priceTagLb = [[UILabel alloc] initWithFrame:CGRectMake(10.f, prodNameLb.frame.origin.y + prodNameLb.frame.size.height + 30.f, 300.f, 30.f)];
-    prodIdLb.text = @"208802387236128912937";
-    prodNameLb.text = @"精选水果披萨        X 1";
-    priceTagLb.text = @"33.00  元";
+    prodIdLb.text = PROD_ID;
+    prodNameLb.text = PROD_NAME;
+    priceTagLb.text = PROD_PRICE;
     
     
     self.dealBtn = [UIButton buttonWithType:UIButtonTypeSystem];
@@ -98,22 +107,47 @@
     [self.tunnel scan];
 }
 
-- (void) peripheralManagerPoweredOn{
-    [self.tunnel startAdvertising];
-}
-
 - (void) dataReceived:(NSData *) data{
     if (data) {
-        self.secretTunnelId = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        self.receivedText.text = self.secretTunnelId;
         
-        [self.tunnel disConnectPeripheral];
-        [self.tunnel destroyCentralManager];
+        if (self.tunnelBuilded){
+            
+            NSString *tempReceivedString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            NSLog(@"payment result is : %@", tempReceivedString);
+            // push view with tempReceivedString
+        }else{
+            self.secretTunnelId = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            self.receivedText.text = self.secretTunnelId;
+            
+            [self.tunnel disConnectPeripheral];
+            [self.tunnel destroyCentralManager];
+        }
+
     }
 }
 
 - (void) centralManagerDidDestroyed{
-    [self startTunnel];
+    
+    if (self.tunnelBuilded) {
+        self.tunnelBuilded = NO;
+    }else{
+        self.tunnelBuilded = YES;
+        [self startTunnel];
+    }
+}
+
+- (void) peripheralManagerPoweredOn{
+    [self.tunnel startAdvertising];
+}
+
+- (void) isReadyToSendData{
+    NSString *formatedString = [PROD_NAME stringByAppendingFormat:@"::%@",PROD_PRICE];
+    [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[formatedString dataUsingEncoding:NSUTF8StringEncoding]]];
+    [self.tunnel sendData];
+}
+
+- (void) peripheralManagerDidDestroyed{
+    
 }
 
 - (void) startTunnel{
