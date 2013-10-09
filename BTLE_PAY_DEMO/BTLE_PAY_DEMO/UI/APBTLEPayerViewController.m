@@ -5,15 +5,22 @@
 //  Created by Michael Hanyee on 13-9-26.
 //  Copyright (c) 2013年 Michael Hanyee. All rights reserved.
 //
+
+#define SECRETID @"19610FAE-DB05-467E-8757-72F6FAEB13D4"
+
 #import <CoreBluetooth/CoreBluetooth.h>
 
 #import "APBTLEPayerViewController.h"
 #import "APBTLEPaymentCompleteViewController.h"
 #import "APBTLECoreTunnel.h"
 
+
+
 @interface APBTLEPayerViewController () <APBTLECoreTunnelDelegate>
 
 @property (strong, nonatomic) APBTLECoreTunnel  *tunnel;
+
+@property BOOL                                  tunnelBuilded;
 
 @end
 
@@ -27,6 +34,7 @@
         self.title = @"Pay";
         self.tunnel = [[APBTLECoreTunnel alloc] init];
         self.tunnel.delegate = self;
+        self.tunnelBuilded = NO;
     }
     return self;
 }
@@ -77,13 +85,37 @@
     [self.tunnel startAdvertising];
 }
 
+- (void) centralManagerPoweredOn{
+    [self.tunnel scan];
+}
+
 - (void) isReadyToSendData{
-    [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[@"hahah,,111@aaa!" dataUsingEncoding:NSUTF8StringEncoding]]];
-    [self.tunnel sendData];
+
+    if (self.tunnelBuilded) {
+        // exchange data
+        
+        
+    }else{
+        [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[SECRETID dataUsingEncoding:NSUTF8StringEncoding]]];
+        [self.tunnel sendData];
+    }
     
 //    dispatch_sync(dispatch_get_main_queue(), ^{
 //        [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(timertodo) userInfo:nil repeats:YES];
 //    });
+}
+
+
+- (void) peripheralManagerDidDestroyed{
+    
+    [self startTunnel];
+    self.tunnelBuilded = YES;
+}
+
+
+- (void) startTunnel{
+    [self.tunnel startTunnelWithUUID:SECRETID];
+    
 }
 
 
@@ -94,10 +126,12 @@
     [self.tunnel sendData];
 }
 
+
 - (void)didReceiveMemoryWarning
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
 
 @end

@@ -23,11 +23,13 @@
 
 - (void) centralManagerPoweredOn;
 - (void) dataReceived:(NSData *) data;
+- (void) centralManagerDidDestroyed;
 
 
 
 - (void) peripheralManagerPoweredOn;
 - (void) isReadyToSendData;
+- (void) peripheralManagerDidDestroyed;
 
 
 @end
@@ -56,6 +58,7 @@
 - (void) scanWithUUID:(NSArray *)uuidStrings;
 - (void) stopScan;
 - (void) cleanup;
+- (void) disConnectPeripheral;
 - (void) destroyCentralManager;
 
 
@@ -68,4 +71,7 @@
 - (void) sendData;
 - (void) destroyPeripheralManager;
 
+
+// TUNNEL
+- (void) startTunnelWithUUID:(NSString *) uuidString;
 @end

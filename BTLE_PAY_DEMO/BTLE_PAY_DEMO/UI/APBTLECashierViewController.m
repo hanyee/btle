@@ -15,6 +15,7 @@
 @property CGFloat mt;
 @property (strong, nonatomic) UIButton          *dealBtn;
 @property (strong, nonatomic) APBTLECoreTunnel  *tunnel;
+@property (strong, nonatomic) NSString          *secretTunnelId;
 
 
 
@@ -88,7 +89,6 @@
 //    [self.tunnel createCentralManager];
 //    [self.tunnel scanWithUUID:@[DEFAULT_TRANSFER_SERVICE_UUID]];
     [self.tunnel createCentralManagerWithUUIDStrings:@[DEFAULT_TRANSFER_SERVICE_UUID]];
-//    [self.tunnel createCentralManager];
     
 //    [self.navigationController pushViewController:[[APBTLECashierCompleteViewController alloc] init] animated:YES];
 }
@@ -98,11 +98,31 @@
     [self.tunnel scan];
 }
 
+- (void) peripheralManagerPoweredOn{
+    [self.tunnel startAdvertising];
+}
+
 - (void) dataReceived:(NSData *) data{
     if (data) {
-        self.receivedText.text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        self.secretTunnelId = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        self.receivedText.text = self.secretTunnelId;
+        
+        [self.tunnel disConnectPeripheral];
+        [self.tunnel destroyCentralManager];
     }
 }
+
+- (void) centralManagerDidDestroyed{
+    [self startTunnel];
+}
+
+- (void) startTunnel{
+    [self.tunnel startTunnelWithUUID:self.secretTunnelId];
+
+}
+
+
+
 
 - (void)didReceiveMemoryWarning
 {

@@ -134,7 +134,7 @@
 }
 
 - (void) stopScan {
-    if (self.centralManager) {
+    if (self.centralManager && self.centralManager.state == CBCentralManagerStatePoweredOn) {
         [self.centralManager stopScan];
         NSLog(@"Scanning stopped");
     }
@@ -156,6 +156,7 @@
 //    }
 //    [self scanWithUUID:nil];
 }
+
 
 /** This callback comes whenever a peripheral that is advertising the TRANSFER_SERVICE_UUID is discovered.
  *  We check the RSSI, to make sure it's close enough that we're interested in it, and if it is,
@@ -344,21 +345,22 @@
     [self disConnectPeripheral];
 }
 
-- (void) disConnectPeripheral:(CBPeripheral *)peripheral{
-    if (nil == peripheral) {
-        peripheral = self.connectedPeripheral;
-    }
-    
-    // Cancel our subscription to the characteristic
-    for (CBService *service in peripheral.services) {
-        for (CBCharacteristic *characteristic in service.characteristics) {
-            [peripheral setNotifyValue:NO forCharacteristic:characteristic];
-        }
-    }
-    
-    // disconnect from the peripehral
-    [self.centralManager cancelPeripheralConnection:peripheral];
-}
+//- (void) disConnectPeripheral:(CBPeripheral *)peripheral{
+//    if (nil == peripheral) {
+//        peripheral = self.connectedPeripheral;
+//    }
+//    
+//    // Cancel our subscription to the characteristic
+//    for (CBService *service in peripheral.services) {
+//        for (CBCharacteristic *characteristic in service.characteristics) {
+//            [peripheral setNotifyValue:NO forCharacteristic:characteristic];
+//        }
+//    }
+//    
+//    // disconnect from the peripehral
+//    [self.centralManager cancelPeripheralConnection:peripheral];
+//}
+
 - (void) disConnectPeripheral {
     [self cleanup];
     self.connectedPeripheral = nil;
@@ -400,6 +402,10 @@
     [self.receivedData setLength:0];
     self.receivedDataString = nil;
     self.centralManager = nil;
+    
+    [self.delegate centralManagerDidDestroyed];
+    
+    NSLog(@"CentralManager destroyed!");
 }
 
 
@@ -481,7 +487,7 @@
 
 
 - (void) stopAdvertising {
-    if (self.peripheralManager) {
+    if (self.peripheralManager && self.peripheralManager.state == CBPeripheralManagerStatePoweredOn) {
         [self.peripheralManager stopAdvertising];
         NSLog(@"stop advertising");
     }
@@ -597,6 +603,7 @@
     [self.dataToSend setLength:0];
     self.peripheralManager = nil;
     
+    [self.delegate peripheralManagerDidDestroyed];
     NSLog(@"peripheralManager destroyed!");
 }
 
@@ -691,5 +698,18 @@
     }
 }
 
+
+
+// build tunnel
+
+- (void) startTunnelWithUUID:(NSString *) uuidString{
+    [self destroyCentralManager];
+    [self destroyPeripheralManager];
+    
+    [self createCentralManagerWithUUIDStrings:@[uuidString]];
+    [self createPeripheralManagerWithUUIDStrings:@[uuidString]];
+    
+    
+}
 
 @end
