@@ -10,4 +10,6 @@
 
 @interface APBTLEPaymentCompleteViewController : UIViewController
 
+- (id)initWithResult:(NSString *) result;
+
 @end

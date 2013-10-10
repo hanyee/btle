@@ -13,8 +13,9 @@
 @property CGFloat mt;
 
 @property (strong, nonatomic) UILabel               *prodNameLb;
-
 @property (strong, nonatomic) UILabel               *priceTagLb;
+@property (strong, nonatomic) NSString              *prodName;
+@property (strong, nonatomic) NSString              *prodPrice;
 
 @end
 
@@ -34,17 +35,29 @@
     return self;
 }
 
+- (id)initWithResult:(NSString *) result{
+    
+    self = [self init];
+    
+    if (result) {
+        NSArray *tempArr = [result componentsSeparatedByString:@"::"];
+        self.prodName = [tempArr objectAtIndex:0];
+        self.prodPrice = [tempArr objectAtIndex:1];
+    }
+    
+    return self;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     self.prodNameLb = [[UILabel alloc] initWithFrame:CGRectMake(10.f, _mt + 20.f, 300.f, 30.f)];
-    self.prodNameLb.text = @"披萨";
-    
-    
+    self.prodNameLb.text = self.prodName;
+    [self.prodNameLb setTextAlignment:NSTextAlignmentCenter];
     
     self.priceTagLb = [[UILabel alloc] initWithFrame:CGRectMake(10.f, (CGRectGetHeight(self.view.bounds) - 44.f - 30.f) / 2 + 20.f, 300.f, 20.f)];
-    self.priceTagLb.text = @"33.00  元";
+    self.priceTagLb.text = self.prodPrice;
     [self.priceTagLb setTextAlignment:NSTextAlignmentCenter];
     self.priceTagLb.font = [UIFont systemFontOfSize:16.f];
     

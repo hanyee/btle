@@ -28,7 +28,11 @@
 @property (strong, nonatomic) UITextView        *receivedText;
 @end
 
+
 @implementation APBTLECashierViewController
+
+@synthesize tunnel;
+@synthesize tunnelBuilded;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -37,8 +41,9 @@
         // Custom initialization
         self.tunnel = [[APBTLECoreTunnel alloc] init];
         self.tunnel.delegate = self;
-        
+        self.tunnelBuilded = NO;
         self.title = @"Cashier";
+        
         if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
             self.mt = 10.f;
         }else{
@@ -58,9 +63,11 @@
 //    [self.tunnel stopAdvertising];
 //    [self.tunnel stopScan];
 //    [self.tunnel cleanup];
-    
-    [self.tunnel destroyPeripheralManager];
-    [self.tunnel destroyCentralManager];
+    if (self.tunnelBuilded) {
+        [self.tunnel destroyPeripheralManager];
+        [self.tunnel destroyCentralManager];
+    }
+
     
     [super viewWillDisappear:animated];
 }
@@ -97,9 +104,9 @@
     [self.dealBtn setTitle:@"等待付款 ....." forState:UIControlStateNormal];
 //    [self.tunnel createCentralManager];
 //    [self.tunnel scanWithUUID:@[DEFAULT_TRANSFER_SERVICE_UUID]];
-    [self.tunnel createCentralManagerWithUUIDStrings:@[DEFAULT_TRANSFER_SERVICE_UUID]];
     
-//    [self.navigationController pushViewController:[[APBTLECashierCompleteViewController alloc] init] animated:YES];
+    
+    [self.tunnel createCentralManagerWithUUIDStrings:@[DEFAULT_TRANSFER_SERVICE_UUID]];
 }
 
 - (void) centralManagerPoweredOn{
@@ -114,12 +121,14 @@
             
             NSString *tempReceivedString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             NSLog(@"payment result is : %@", tempReceivedString);
+            self.receivedText.text = [tempReceivedString stringByAppendingString:self.receivedText.text];;
             // push view with tempReceivedString
+            [self.navigationController pushViewController:[[APBTLECashierCompleteViewController alloc] initWithResult:tempReceivedString] animated:YES];
         }else{
             self.secretTunnelId = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             self.receivedText.text = self.secretTunnelId;
             
-            [self.tunnel disConnectPeripheral];
+//            [self.tunnel disConnectPeripheral];
             [self.tunnel destroyCentralManager];
         }
 
@@ -129,7 +138,7 @@
 - (void) centralManagerDidDestroyed{
     
     if (self.tunnelBuilded) {
-        self.tunnelBuilded = NO;
+//        self.tunnelBuilded = NO;
     }else{
         self.tunnelBuilded = YES;
         [self startTunnel];
@@ -148,6 +157,10 @@
 
 - (void) peripheralManagerDidDestroyed{
     
+}
+
+- (void) dataDidSend{
+
 }
 
 - (void) startTunnel{

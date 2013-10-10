@@ -36,6 +36,7 @@
 
 
 @property (strong, nonatomic) NSString                  *deviceUID;
+@property BOOL                                          isTunnelStarted;
 
 @end
 
@@ -74,6 +75,7 @@
         peripheralManagerQueue = dispatch_queue_create("com.alipay.btle.pm.queue", DISPATCH_QUEUE_SERIAL);
         self.deviceUID = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
         self.defaultCharacteristicUUID = [CBUUID UUIDWithString:DEFAULT_TRANSFER_CHARACTERISTIC_UUID];
+        self.isTunnelStarted = NO;
     }
     
     return self;
@@ -180,7 +182,7 @@
         
         // And connect
         // connect the closest peripheral device
-        NSLog(@"Connecting to peripheral %@", peripheral);
+        NSLog(@"Connecting to peripheral %@", peripheral.name);
         [self.centralManager connectPeripheral:peripheral options:nil];
     }
 }
@@ -324,7 +326,7 @@
     
     // Notification has started
     if (characteristic.isNotifying) {
-        NSLog(@"Notification began on %@", characteristic);
+        NSLog(@"Notification began on %@", characteristic.value);
     }
     
     // Notification has stopped
@@ -519,7 +521,7 @@
         [self.peripheralManager addService:transferService];
     }
     
-    NSLog(@"characteristic is : %@", self.transferCharacteristic);
+    NSLog(@"characteristic is : %@", self.transferCharacteristic.value);
 }
 
 
@@ -570,6 +572,9 @@
     NSLog(@"Central unsubscribed from characteristic");
 
     [self destroyPeripheralManager];
+    if (self.isTunnelStarted) {
+//        [self destroyCentralManager];
+    }
 }
 
 
@@ -626,6 +631,8 @@
             sendingEOM = NO;
             
             NSLog(@"Sent: 'EOM' : %@", ALIPAY_BTLE_END_OF_SIGNAL);
+            
+            [self.delegate dataDidSend];
         }
         
         // It didn't send, so we'll exit and wait for peripheralManagerIsReadyToUpdateSubscribers to call sendData again
@@ -704,13 +711,17 @@
 // build tunnel
 
 - (void) startTunnelWithUUID:(NSString *) uuidString{
+    if (self.isTunnelStarted) {
+        return ;
+    }
+    
     [self destroyCentralManager];
     [self destroyPeripheralManager];
     
     [self createCentralManagerWithUUIDStrings:@[uuidString]];
     [self createPeripheralManagerWithUUIDStrings:@[uuidString]];
     
-    
+    self.isTunnelStarted = YES;
 }
 
 @end

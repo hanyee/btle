@@ -21,10 +21,17 @@
 @property (strong, nonatomic) APBTLECoreTunnel  *tunnel;
 
 @property BOOL                                  tunnelBuilded;
+@property BOOL                                  isReadyToSend;
+@property BOOL                                  isCompleted;
+@property (strong, nonatomic) NSString          *tempReceivedString;
 
 @end
 
 @implementation APBTLEPayerViewController
+
+@synthesize tunnel;
+@synthesize tunnelBuilded;
+@synthesize isReadyToSend;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -35,6 +42,8 @@
         self.tunnel = [[APBTLECoreTunnel alloc] init];
         self.tunnel.delegate = self;
         self.tunnelBuilded = NO;
+        self.isReadyToSend = NO;
+        self.isCompleted = NO;
     }
     return self;
 }
@@ -68,8 +77,10 @@
 //    [self.tunnel stopScan];
 //    [self.tunnel cleanup];
     
-    [self.tunnel destroyPeripheralManager];
-    [self.tunnel destroyCentralManager];
+    if (self.tunnelBuilded) {
+        [self.tunnel destroyPeripheralManager];
+        [self.tunnel destroyCentralManager];
+    }
     
     [super viewWillDisappear:animated];
 }
@@ -81,8 +92,7 @@
 - (void) directPay{
     
     [self.tunnel createPeripheralManagerWithUUIDStrings:@[DEFAULT_TRANSFER_SERVICE_UUID]];
-//    [self.tunnel updatePeripheralServiceWithUUID:nil];
-//    [self.navigationController pushViewController:[[APBTLEPaymentCompleteViewController alloc] init] animated:YES];
+
 }
 
 
@@ -93,6 +103,8 @@
 
 - (void) isReadyToSendData{
 
+    self.isReadyToSend = YES;
+    NSLog(@"isReadyToSend !!!!");
     if (self.tunnelBuilded) {
         // exchange data
         
@@ -109,9 +121,10 @@
 
 
 - (void) peripheralManagerDidDestroyed{
+    self.isReadyToSend = NO;
     
     if (self.tunnelBuilded) {
-        self.tunnelBuilded = NO;
+//        self.tunnelBuilded = NO;
     }else{
         self.tunnelBuilded = YES;
         [self startTunnel];
@@ -124,13 +137,30 @@
 }
 
 - (void) dataReceived:(NSData *) data{
-    NSString *tempReceivedString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"porduct to pay is : %@", tempReceivedString);
+    if (data) {
+        self.tempReceivedString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"porduct to pay is : %@", self.tempReceivedString);
+        
+        if (self.isReadyToSend) {
+            // send account and finished flag
+            [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[@"myalipay@alipay.com::成功！" dataUsingEncoding:NSUTF8StringEncoding]]];
+            [self.tunnel sendData];
+            self.isCompleted = YES;
+            // push view with tempReceivedString
+//            [self.navigationController pushViewController:[[APBTLEPaymentCompleteViewController alloc] initWithResult:self.tempReceivedString] animated:YES];
+        }
+        
+        
+    }
     
-    // send account and finished flag
-    [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[@"myalipay@alipay.com::成功！" dataUsingEncoding:NSUTF8StringEncoding]]];
-    [self.tunnel sendData];
-    // push view with tempReceivedString
+}
+
+- (void) dataDidSend{
+    if (self.isCompleted) {
+        // push view with tempReceivedString
+        self.isCompleted = NO;
+        [self.navigationController pushViewController:[[APBTLEPaymentCompleteViewController alloc] initWithResult:self.tempReceivedString] animated:YES];
+    }
 }
 
 - (void) centralManagerDidDestroyed{
