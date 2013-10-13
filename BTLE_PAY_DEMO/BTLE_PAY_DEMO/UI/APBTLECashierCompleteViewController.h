@@ -10,4 +10,6 @@
 
 @interface APBTLECashierCompleteViewController : UIViewController
 
+- (id)initWithResult:(NSString *) result;
+
 @end

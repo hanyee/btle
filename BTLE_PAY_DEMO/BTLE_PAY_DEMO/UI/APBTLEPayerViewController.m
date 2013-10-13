@@ -6,7 +6,7 @@
 //  Copyright (c) 2013年 Michael Hanyee. All rights reserved.
 //
 
-#define SECRETID @"19610FAE-DB05-467E-8757-72F6FAEB13D4"
+#define SECRET_ID @"19610FAE-DB05-467E-8757-72F6FAEB13D4"
 
 #import <CoreBluetooth/CoreBluetooth.h>
 
@@ -21,10 +21,17 @@
 @property (strong, nonatomic) APBTLECoreTunnel  *tunnel;
 
 @property BOOL                                  tunnelBuilded;
+@property BOOL                                  isReadyToSend;
+@property BOOL                                  isCompleted;
+@property (strong, nonatomic) NSString          *tempReceivedString;
 
 @end
 
 @implementation APBTLEPayerViewController
+
+@synthesize tunnel;
+@synthesize tunnelBuilded;
+@synthesize isReadyToSend;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -35,6 +42,8 @@
         self.tunnel = [[APBTLECoreTunnel alloc] init];
         self.tunnel.delegate = self;
         self.tunnelBuilded = NO;
+        self.isReadyToSend = NO;
+        self.isCompleted = NO;
     }
     return self;
 }
@@ -64,7 +73,14 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     // Don't keep it going while we're not showing.
-    [self.tunnel stopAdvertising];
+//    [self.tunnel stopAdvertising];
+//    [self.tunnel stopScan];
+//    [self.tunnel cleanup];
+    
+    if (self.tunnelBuilded) {
+        [self.tunnel destroyPeripheralManager];
+        [self.tunnel destroyCentralManager];
+    }
     
     [super viewWillDisappear:animated];
 }
@@ -76,8 +92,7 @@
 - (void) directPay{
     
     [self.tunnel createPeripheralManagerWithUUIDStrings:@[DEFAULT_TRANSFER_SERVICE_UUID]];
-//    [self.tunnel updatePeripheralServiceWithUUID:nil];
-//    [self.navigationController pushViewController:[[APBTLEPaymentCompleteViewController alloc] init] animated:YES];
+
 }
 
 
@@ -85,18 +100,17 @@
     [self.tunnel startAdvertising];
 }
 
-- (void) centralManagerPoweredOn{
-    [self.tunnel scan];
-}
 
 - (void) isReadyToSendData{
 
+    self.isReadyToSend = YES;
+    NSLog(@"isReadyToSend !!!!");
     if (self.tunnelBuilded) {
         // exchange data
         
         
     }else{
-        [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[SECRETID dataUsingEncoding:NSUTF8StringEncoding]]];
+        [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[SECRET_ID dataUsingEncoding:NSUTF8StringEncoding]]];
         [self.tunnel sendData];
     }
     
@@ -107,14 +121,55 @@
 
 
 - (void) peripheralManagerDidDestroyed{
+    self.isReadyToSend = NO;
     
-    [self startTunnel];
-    self.tunnelBuilded = YES;
+    if (self.tunnelBuilded) {
+//        self.tunnelBuilded = NO;
+    }else{
+        self.tunnelBuilded = YES;
+        [self startTunnel];
+    }
+
+}
+
+- (void) centralManagerPoweredOn{
+    [self.tunnel scan];
+}
+
+- (void) dataReceived:(NSData *) data{
+    if (data) {
+        self.tempReceivedString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"porduct to pay is : %@", self.tempReceivedString);
+        
+        if (self.isReadyToSend) {
+            // send account and finished flag
+            [self.tunnel setDataToSend:[[NSMutableData alloc] initWithData:[@"myalipay@alipay.com::成功！" dataUsingEncoding:NSUTF8StringEncoding]]];
+            [self.tunnel sendData];
+            self.isCompleted = YES;
+            // push view with tempReceivedString
+//            [self.navigationController pushViewController:[[APBTLEPaymentCompleteViewController alloc] initWithResult:self.tempReceivedString] animated:YES];
+        }
+        
+        
+    }
+    
+}
+
+- (void) dataDidSend{
+    if (self.isCompleted) {
+        // push view with tempReceivedString
+        self.isCompleted = NO;
+        [self.navigationController pushViewController:[[APBTLEPaymentCompleteViewController alloc] initWithResult:self.tempReceivedString] animated:YES];
+    }
+}
+
+- (void) centralManagerDidDestroyed{
+
 }
 
 
 - (void) startTunnel{
-    [self.tunnel startTunnelWithUUID:SECRETID];
+    [self.tunnel startTunnelWithUUID:SECRET_ID];
     
 }
 

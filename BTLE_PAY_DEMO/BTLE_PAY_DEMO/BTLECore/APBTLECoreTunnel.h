@@ -29,6 +29,7 @@
 
 - (void) peripheralManagerPoweredOn;
 - (void) isReadyToSendData;
+- (void) dataDidSend;
 - (void) peripheralManagerDidDestroyed;
 
 
