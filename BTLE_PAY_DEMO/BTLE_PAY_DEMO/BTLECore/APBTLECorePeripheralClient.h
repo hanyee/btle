@@ -7,7 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "APBTLECoreDelegate.h"
 
 @interface APBTLECorePeripheralClient : NSObject
+
+@property (nonatomic) id <APBTLECoreDelegate>            delegate;
 
 @end
