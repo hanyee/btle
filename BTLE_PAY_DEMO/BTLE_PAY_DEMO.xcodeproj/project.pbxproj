@@ -27,6 +27,8 @@
 		77519FF017F32D0600C17A92 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 77519FEF17F32D0600C17A92 /* CoreBluetooth.framework */; };
 		77519FF717F3307B00C17A92 /* APBTLEAppDelegate.h in Sources */ = {isa = PBXBuildFile; fileRef = 77519FCF17F32CB200C17A92 /* APBTLEAppDelegate.h */; };
 		7751A00217F3319500C17A92 /* ModeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7751A00117F3319500C17A92 /* ModeViewController.m */; };
+		777BA7A1180AEF03002F59D3 /* APBTLECoreCentralServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 777BA7A0180AEF03002F59D3 /* APBTLECoreCentralServer.m */; };
+		777BA7A4180AF098002F59D3 /* APBTLECorePeripheralClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 777BA7A3180AF098002F59D3 /* APBTLECorePeripheralClient.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +71,11 @@
 		77519FEF17F32D0600C17A92 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		7751A00017F3319500C17A92 /* ModeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModeViewController.h; sourceTree = "<group>"; };
 		7751A00117F3319500C17A92 /* ModeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ModeViewController.m; sourceTree = "<group>"; };
+		777BA79F180AEF03002F59D3 /* APBTLECoreCentralServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APBTLECoreCentralServer.h; sourceTree = "<group>"; };
+		777BA7A0180AEF03002F59D3 /* APBTLECoreCentralServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APBTLECoreCentralServer.m; sourceTree = "<group>"; };
+		777BA7A2180AF098002F59D3 /* APBTLECorePeripheralClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APBTLECorePeripheralClient.h; sourceTree = "<group>"; };
+		777BA7A3180AF098002F59D3 /* APBTLECorePeripheralClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APBTLECorePeripheralClient.m; sourceTree = "<group>"; };
+		777BA7A5180B08CB002F59D3 /* APBTLECoreDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APBTLECoreDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +108,11 @@
 			children = (
 				7742475317F4249300EFA6B9 /* APBTLECoreTunnel.h */,
 				7742475417F4249300EFA6B9 /* APBTLECoreTunnel.m */,
+				777BA79F180AEF03002F59D3 /* APBTLECoreCentralServer.h */,
+				777BA7A0180AEF03002F59D3 /* APBTLECoreCentralServer.m */,
+				777BA7A2180AF098002F59D3 /* APBTLECorePeripheralClient.h */,
+				777BA7A3180AF098002F59D3 /* APBTLECorePeripheralClient.m */,
+				777BA7A5180B08CB002F59D3 /* APBTLECoreDelegate.h */,
 			);
 			path = BTLECore;
 			sourceTree = "<group>";
@@ -293,9 +305,11 @@
 			files = (
 				7742474B17F3DF0900EFA6B9 /* APBTLEPayerViewController.m in Sources */,
 				77519FF717F3307B00C17A92 /* APBTLEAppDelegate.h in Sources */,
+				777BA7A4180AF098002F59D3 /* APBTLECorePeripheralClient.m in Sources */,
 				77519FD117F32CB200C17A92 /* APBTLEAppDelegate.m in Sources */,
 				77519FCD17F32CB200C17A92 /* main.m in Sources */,
 				7742474E17F4081000EFA6B9 /* APBTLECashierCompleteViewController.m in Sources */,
+				777BA7A1180AEF03002F59D3 /* APBTLECoreCentralServer.m in Sources */,
 				7742475117F40E3100EFA6B9 /* APBTLEPaymentCompleteViewController.m in Sources */,
 				7742474817F3DEEF00EFA6B9 /* APBTLECashierViewController.m in Sources */,
 				7751A00217F3319500C17A92 /* ModeViewController.m in Sources */,

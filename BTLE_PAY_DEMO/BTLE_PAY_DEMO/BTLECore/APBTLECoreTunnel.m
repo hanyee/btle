@@ -9,7 +9,7 @@
 //#import <CoreBluetooth/CoreBluetooth.h>
 #import "APBTLECoreTunnel.h"
 
-@interface APBTLECoreTunnel () <CBCentralManagerDelegate, CBPeripheralManagerDelegate, CBPeripheralDelegate>{
+@interface APBTLECoreTunnel () <CBCentralManagerDelegate, CBPeripheralManagerDelegate, CBPeripheralDelegate> {
     dispatch_queue_t centralManagerQueue;
     dispatch_queue_t peripheralManagerQueue;
 }
@@ -217,7 +217,7 @@
     // Search only for services that match our UUID
     if (self.serviceUUIDs.count > 0) {
         [peripheral discoverServices:self.serviceUUIDs];
-    }else{
+    } else {
         [peripheral discoverServices:nil];
     }
 }
